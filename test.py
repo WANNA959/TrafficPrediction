@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Traffic Flow Prediction with Neural Networks(SAEs、LSTM、GRU).
+Traffic Flow Prediction with Neural Networks(LSTM、GRU).
 """
 import math
 import warnings
