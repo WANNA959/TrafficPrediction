@@ -96,12 +96,12 @@ def plot_results(y_true, y_preds, names):
     plt.savefig("images/pre_weekend_time.png")
 
 def main():
-    lstm = load_model('model/100211_all/lstm.h5')
+    lstm = load_model('model/lstm-12.h5')
     gru = load_model('model/100211_all/gru.h5')
     models = [lstm, gru]
     models = [lstm]
     names = ['LSTM', 'GRU']
-    lag = 12
+    lag = 14
     file1 = 'data/100211data/100211_weekend_train.csv'
     file2 = 'data/100211data/100211_weekend_test.csv'
     _, _, X_test, y_test, scaler = process_data(file1, file2, lag)

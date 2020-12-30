@@ -13,7 +13,7 @@ from keras.callbacks import EarlyStopping
 warnings.filterwarnings("ignore")
 
 
-def train_model(model, X_train, y_train, name, config):
+def train_model(model, X_train, y_train, name, config,lag):
     """train
     train a single model.
 
@@ -33,9 +33,9 @@ def train_model(model, X_train, y_train, name, config):
         epochs=config["epochs"],
         validation_split=0.05)
 
-    model.save('model/' + name + '.h5')
+    model.save('model/' + name + '-'+str(lag)+'.h5')
     df = pd.DataFrame.from_dict(hist.history)
-    df.to_csv('model/' + name + ' loss.csv', encoding='utf-8', index=False)
+    df.to_csv('model/' + name + '-'+str(lag)+' loss.csv', encoding='utf-8', index=False)
 
 def main(argv):
     parser = argparse.ArgumentParser()
@@ -45,21 +45,20 @@ def main(argv):
         help="Model to train.")
     args = parser.parse_args()
 
-    lag = 12
     config = {"batch": 256, "epochs": 600}
     file1 = 'data/100211data/100211_all_train.csv'
     file2 = 'data/100211data/100211_all_test.csv'
-    X_train, y_train, _, _, _ = process_data(file1, file2, lag)
-    print(X_train.shape)
-    print(y_train.shape)
-    if args.model == 'lstm':
-        X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1))
-        m = model.get_lstm([12, 64, 64, 1])
-        train_model(m, X_train, y_train, args.model, config)
-    if args.model == 'gru':
-        X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1))
-        m = model.get_gru([12, 64, 64, 1])
-        train_model(m, X_train, y_train, args.model, config)
+    for i in range(14,16,2):
+        lag = i
+        X_train, y_train, _, _, _ = process_data(file1, file2, lag)
+        if args.model == 'lstm':
+            X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1))
+            m = model.get_lstm([12, 64, 64, 1])
+            train_model(m, X_train, y_train, args.model, config,lag)
+        if args.model == 'gru':
+            X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1))
+            m = model.get_gru([12, 64, 64, 1])
+            train_model(m, X_train, y_train, args.model, config,lag)
 
 
 if __name__ == '__main__':
