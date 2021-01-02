@@ -57,7 +57,6 @@ def eva_regress(y_true, y_pred):
     vs = metrics.explained_variance_score(y_true, y_pred)
     mae = metrics.mean_absolute_error(y_true, y_pred)
     mse = metrics.mean_squared_error(y_true, y_pred)
-    r2 = metrics.r2_score(y_true, y_pred)
     print('explained_variance_score:%f' % vs)
     print('mape:%f%%' % mape)#平均绝对百分比误差
     print('mae:%f' % mae)#平均绝对误差
@@ -93,15 +92,16 @@ def plot_results(y_true, y_preds, names):
     fig.autofmt_xdate()
 
     plt.show()
-    plt.savefig("images/pre_weekend_time.png")
+    # plt.savefig("images/pre_weekend_time.png")
 
 def main():
-    lstm = load_model('model/lstm-12.h5')
-    gru = load_model('model/100211_all/gru.h5')
-    models = [lstm, gru]
+    lag = 10
+    lstm = load_model("model/lstm-"+str(lag)+".h5")
+    allDense = load_model('model/AllDense-10.h5')
     models = [lstm]
-    names = ['LSTM', 'GRU']
-    lag = 14
+    models = [allDense]
+    names = ['lstm']
+    names = ['AllDense']
     file1 = 'data/100211data/100211_weekend_train.csv'
     file2 = 'data/100211data/100211_weekend_test.csv'
     _, _, X_test, y_test, scaler = process_data(file1, file2, lag)
@@ -109,8 +109,8 @@ def main():
 
     y_preds = []
     for name, model in zip(names, models):
-
-        X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
+        if name=='lstm':
+            X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
         file = 'images/' + name + '.png'
         plot_model(model, to_file=file, show_shapes=True)
         predicted = model.predict(X_test)
