@@ -21,9 +21,9 @@ from tkinter import ttk
 
 warnings.filterwarnings("ignore")
 
-dataTable = tkinter.Tk()
-dataTable.title("data")
-dataTable.geometry("300x200+10+20")
+window = tkinter.Tk()
+window.title('入口')  # 标题
+window.geometry('400x400')  # 窗口尺寸
 
 def MAPE(y_true, y_pred):
     """Mean Absolute Percentage Error
@@ -129,8 +129,8 @@ def compareMLPAndLSTM():
     print(columnData)
     print(np.array(columnData)[:,0])
     dataTable = tkinter.Tk()
-    dataTable.title("data")
-    dataTable.geometry("300x200+10+20")
+    dataTable.title("MLP和LSTM的训练参数比较")
+    dataTable.geometry("800x300")
 
     # 创建表格
     tree_date = ttk.Treeview(dataTable)
@@ -140,8 +140,8 @@ def compareMLPAndLSTM():
     tree_date.pack()
 
     # 设置列宽度
-    tree_date.column('MLP', width=100)
-    tree_date.column('LSTM', width=100)
+    tree_date.column('MLP', width=200)
+    tree_date.column('LSTM', width=200)
 
     tree_date.heading('MLP', text='MLP')
     tree_date.heading('LSTM', text='LSTM')
@@ -153,38 +153,45 @@ def compareMLPAndLSTM():
     tree_date.insert('', 3, text='MSE', values=tuple(np.array(columnData)[:,3]))
     # 第一个参数为第一层级，可能在这不太好理解，下篇文章中说到树状结构就理解了
 
-    dataTable.mainloop()
-
 
 def main():
-    lag = 12
-    lstm = load_model("model/lstm-"+str(lag)+".h5")
-    allDense = load_model('model/AllDense-12.h5')
-    models = [lstm]
-    models = [allDense]
-    names = ['lstm']
-    names = ['AllDense']
-    file1 = 'data/100211data/100211_weekend_train.csv'
-    file2 = 'data/100211data/100211_weekend_test.csv'
-    _, _, X_test, y_test, scaler = process_data(file1, file2, lag)
-    y_test = scaler.inverse_transform(y_test.reshape(-1, 1)).reshape(1, -1)[0]
+    # lag = 12
+    # lstm = load_model("model/lstm-"+str(lag)+".h5")
+    # allDense = load_model('model/AllDense-12.h5')
+    # models = [lstm]
+    # models = [allDense]
+    # names = ['lstm']
+    # names = ['AllDense']
+    # file1 = 'data/100211data/100211_weekend_train.csv'
+    # file2 = 'data/100211data/100211_weekend_test.csv'
+    # _, _, X_test, y_test, scaler = process_data(file1, file2, lag)
+    # y_test = scaler.inverse_transform(y_test.reshape(-1, 1)).reshape(1, -1)[0]
+    #
+    # y_preds = []
+    # for name, model in zip(names, models):
+    #     if name=='lstm':
+    #         X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
+    #     file = 'images/' + name + '.png'
+    #     plot_model(model, to_file=file, show_shapes=True)
+    #     predicted = model.predict(X_test)
+    #     predicted = scaler.inverse_transform(predicted.reshape(-1, 1)).reshape(1, -1)[0]
+    #     y_preds.append(predicted[0:288])
+    #     print(name)
+    #     eva_regress(y_test, predicted)
+    #     # print(y_test.shape,predicted.shape)
+    #
+    # plot_results(y_test[0:288], y_preds, names)
 
-    y_preds = []
-    for name, model in zip(names, models):
-        if name=='lstm':
-            X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
-        file = 'images/' + name + '.png'
-        plot_model(model, to_file=file, show_shapes=True)
-        predicted = model.predict(X_test)
-        predicted = scaler.inverse_transform(predicted.reshape(-1, 1)).reshape(1, -1)[0]
-        y_preds.append(predicted[0:288])
-        print(name)
-        eva_regress(y_test, predicted)
-        # print(y_test.shape,predicted.shape)
+    #入口
 
-    plot_results(y_test[0:288], y_preds, names)
+    # 对比MLP和LSTM
+    bt1 = tkinter.Button(window, text='对比MLP和LSTM', width=30, height=15, command=compareMLPAndLSTM)
+    bt1.pack()
+    window.mainloop()
+
+    # 对比不同的lag
 
 
 if __name__ == '__main__':
-    # main()
-    compareMLPAndLSTM()
+    main()
+    # compareMLPAndLSTM()
