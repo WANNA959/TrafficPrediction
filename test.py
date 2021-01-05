@@ -15,8 +15,15 @@ from keras.utils.vis_utils import plot_model
 
 from data.data import process_data
 
+import tkinter
+
+from tkinter import ttk
+
 warnings.filterwarnings("ignore")
 
+dataTable = tkinter.Tk()
+dataTable.title("data")
+dataTable.geometry("300x200+10+20")
 
 def MAPE(y_true, y_pred):
     """Mean Absolute Percentage Error
@@ -62,6 +69,7 @@ def eva_regress(y_true, y_pred):
     print('mae:%f' % mae)#平均绝对误差
     print('mse:%f' % mse)#均方根误差
     print('rmse:%f' % math.sqrt(mse))
+    return [vs,mape,mae,mse]
 
 # 真实数据和预测数据对比
 def plot_results(y_true, y_preds, names):
@@ -94,6 +102,60 @@ def plot_results(y_true, y_preds, names):
     plt.show()
     # plt.savefig("images/pre_weekend_time.png")
 
+def compareMLPAndLSTM():
+    lag = 10
+    lstm = load_model("model/lstm-" + str(lag) + ".h5")
+    allDense = load_model('model/AllDense-10.h5')
+    models = [allDense,lstm]
+    names = ['AllDense','lstm']
+    file1 = 'data/100211data/100211_weekend_train.csv'
+    file2 = 'data/100211data/100211_weekend_test.csv'
+    _, _, X_test, y_test, scaler = process_data(file1, file2, lag)
+    y_test = scaler.inverse_transform(y_test.reshape(-1, 1)).reshape(1, -1)[0]
+
+    y_preds = []
+    columnData=[]
+    for name, model in zip(names, models):
+        if name == 'lstm':
+            X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
+        file = 'images/' + name + '.png'
+        plot_model(model, to_file=file, show_shapes=True)
+        predicted = model.predict(X_test)
+        predicted = scaler.inverse_transform(predicted.reshape(-1, 1)).reshape(1, -1)[0]
+        y_preds.append(predicted[0:288])
+        print(name)
+        evaValue = eva_regress(y_test, predicted)
+        columnData.append(evaValue)
+    print(columnData)
+    print(np.array(columnData)[:,0])
+    dataTable = tkinter.Tk()
+    dataTable.title("data")
+    dataTable.geometry("300x200+10+20")
+
+    # 创建表格
+    tree_date = ttk.Treeview(dataTable)
+
+    # 定义列
+    tree_date['columns'] = ['MLP', 'LSTM']
+    tree_date.pack()
+
+    # 设置列宽度
+    tree_date.column('MLP', width=100)
+    tree_date.column('LSTM', width=100)
+
+    tree_date.heading('MLP', text='MLP')
+    tree_date.heading('LSTM', text='LSTM')
+
+    # 给表格中添加数据
+    tree_date.insert('', 0, text='EVS', values=tuple(np.array(columnData)[:,0]))
+    tree_date.insert('', 1, text='MAPE', values=tuple(np.array(columnData)[:,1]))
+    tree_date.insert('', 2, text='MAE', values=tuple(np.array(columnData)[:,2]))
+    tree_date.insert('', 3, text='MSE', values=tuple(np.array(columnData)[:,3]))
+    # 第一个参数为第一层级，可能在这不太好理解，下篇文章中说到树状结构就理解了
+
+    dataTable.mainloop()
+
+
 def main():
     lag = 12
     lstm = load_model("model/lstm-"+str(lag)+".h5")
@@ -124,4 +186,5 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    # main()
+    compareMLPAndLSTM()
