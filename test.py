@@ -19,6 +19,7 @@ import tkinter
 from tkinter import ttk, filedialog, dialog
 import os
 
+from PIL import Image, ImageTk
 
 warnings.filterwarnings("ignore")
 
@@ -87,12 +88,12 @@ def plot_results(y_true, y_preds, names):
     d = '2018-04-05 00:00'
     x = pd.date_range(d, periods=len(y_true),freq='5min')
 
-    fig = plt.figure()
+    fig = plt.figure(figsize=(10,8))
     ax = fig.add_subplot(111)
 
-    ax.plot(x, y_true, label='True Data')
+    ax.plot(x, y_true, label='True Data',linewidth=1)
     for name, y_pred in zip(names, y_preds):
-        ax.plot(x, y_pred, label=name)
+        ax.plot(x, y_pred, label=name,linewidth=1)
 
     plt.legend()
     plt.grid(True)
@@ -102,8 +103,8 @@ def plot_results(y_true, y_preds, names):
     ax.xaxis.set_major_formatter(date_format)
     fig.autofmt_xdate()#斜放
 
-    plt.show()
-    # plt.savefig("images/pre_weekend_time.png")
+    plt.savefig("images/pre_weekend_time.png")
+    # plt.show()
 
 def open_file():
     '''
@@ -115,7 +116,6 @@ def open_file():
     text1.pack()
     file_path = filedialog.askopenfilename(title=u'选择文件', initialdir=(os.path.expanduser('/Users/bytedance/python/trafficPrediction/data/100211data/')))
     print('打开文件：', file_path)
-    text1.insert('insert',chr(file_path))
 
 def compareMLPAndLSTM():
     lag = 10
@@ -141,11 +141,12 @@ def compareMLPAndLSTM():
         print(name)
         evaValue = eva_regress(y_test, predicted)
         columnData.append(evaValue)
+    plot_results(y_test[0:288], y_preds, names)
     print(columnData)
     print(np.array(columnData)[:,0])
-    dataTable = tkinter.Tk()
+    dataTable = tkinter.Toplevel()
     dataTable.title("MLP和LSTM的训练参数比较")
-    dataTable.geometry("800x300")
+    dataTable.geometry("1600x1600")
 
     # 创建表格
     tree_date = ttk.Treeview(dataTable)
@@ -166,7 +167,13 @@ def compareMLPAndLSTM():
     tree_date.insert('', 1, text='MAPE', values=tuple(np.array(columnData)[:,1]))
     tree_date.insert('', 2, text='MAE', values=tuple(np.array(columnData)[:,2]))
     tree_date.insert('', 3, text='MSE', values=tuple(np.array(columnData)[:,3]))
-    # 第一个参数为第一层级，可能在这不太好理解，下篇文章中说到树状结构就理解了
+
+    img=Image.open('/Users/bytedance/python/trafficPrediction/images/pre_weekend_time.png')
+    img_png = ImageTk.PhotoImage(img)
+    label_img = ttk.Label(dataTable, image=img_png)
+    label_img.pack()
+
+    dataTable.mainloop()
 
 
 def main():
