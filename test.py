@@ -95,13 +95,13 @@ def plot_results(y_true, y_preds, names):
     # plt.savefig("images/pre_weekend_time.png")
 
 def main():
-    lag = 16
+    lag = 12
     lstm = load_model("model/lstm-"+str(lag)+".h5")
-    allDense = load_model('model/AllDense-10.h5')
+    allDense = load_model('model/AllDense-12.h5')
     models = [lstm]
-    # models = [allDense]
+    models = [allDense]
     names = ['lstm']
-    # names = ['AllDense']
+    names = ['AllDense']
     file1 = 'data/100211data/100211_weekend_train.csv'
     file2 = 'data/100211data/100211_weekend_test.csv'
     _, _, X_test, y_test, scaler = process_data(file1, file2, lag)

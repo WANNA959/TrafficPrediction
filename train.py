@@ -61,19 +61,18 @@ def main(argv):
     file2 = 'data/100211data/100211_all_test.csv'
 
     #得到不同lag的lstm model
-    for i in range(16,18,2):
-        lag = i
-        X_train, y_train, _, _, _ = process_data(file1, file2, lag)
-        X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1))
-        m = model.get_lstm([lag, 64, 64, 1])
-        train_model(m, X_train, y_train, "lstm", config,lag)
+    # for i in range(16,18,2):
+    #     lag = i
+    #     X_train, y_train, _, _, _ = process_data(file1, file2, lag)
+    #     X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1))
+    #     m = model.get_lstm([lag, 64, 64, 1])
+    #     train_model(m, X_train, y_train, "lstm", config,lag)
 
     #得到全连接神经网络训练model(lag=12
-    # lag=10
-    # X_train, y_train, _, _, _ = process_data(file1, file2, lag)
-    # m = model.get_AllDense([lag, 64, 64, 1])
-    # train_allDense_model(m, X_train, y_train , "AllDense" , config , lag)
-
+    lag=12
+    X_train, y_train, _, _, _ = process_data(file1, file2, lag)
+    m = model.get_AllDense([lag, 64, 64, 1])
+    train_allDense_model(m, X_train, y_train , "AllDense" , config , lag)
 
 if __name__ == '__main__':
     main(sys.argv)
