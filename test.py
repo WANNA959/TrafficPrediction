@@ -16,14 +16,17 @@ from keras.utils.vis_utils import plot_model
 from data.data import process_data
 
 import tkinter
+from tkinter import ttk, filedialog, dialog
+import os
 
-from tkinter import ttk
 
 warnings.filterwarnings("ignore")
 
 window = tkinter.Tk()
 window.title('入口')  # 标题
 window.geometry('400x400')  # 窗口尺寸
+
+file_path=''
 
 def MAPE(y_true, y_pred):
     """Mean Absolute Percentage Error
@@ -102,6 +105,18 @@ def plot_results(y_true, y_preds, names):
     plt.show()
     # plt.savefig("images/pre_weekend_time.png")
 
+def open_file():
+    '''
+    打开文件
+    :return:
+    '''
+    global file_path
+    text1 = tkinter.Text(window, width=50, height=10, bg='orange', font=('Arial', 12))
+    text1.pack()
+    file_path = filedialog.askopenfilename(title=u'选择文件', initialdir=(os.path.expanduser('/Users/bytedance/python/trafficPrediction/data/100211data/')))
+    print('打开文件：', file_path)
+    text1.insert('insert',chr(file_path))
+
 def compareMLPAndLSTM():
     lag = 10
     lstm = load_model("model/lstm-" + str(lag) + ".h5")
@@ -110,7 +125,7 @@ def compareMLPAndLSTM():
     names = ['AllDense','lstm']
     file1 = 'data/100211data/100211_weekend_train.csv'
     file2 = 'data/100211data/100211_weekend_test.csv'
-    _, _, X_test, y_test, scaler = process_data(file1, file2, lag)
+    _, _, X_test, y_test, scaler = process_data(file_path, file2, lag)
     y_test = scaler.inverse_transform(y_test.reshape(-1, 1)).reshape(1, -1)[0]
 
     y_preds = []
@@ -184,12 +199,18 @@ def main():
 
     #入口
 
+    #选择测试文件
+    bt2 = tkinter.Button(window, text='打开文件', width=30, height=15, command=open_file)
+    bt2.pack()
     # 对比MLP和LSTM
     bt1 = tkinter.Button(window, text='对比MLP和LSTM', width=30, height=15, command=compareMLPAndLSTM)
     bt1.pack()
-    window.mainloop()
 
     # 对比不同的lag
+
+    window.mainloop()
+
+
 
 
 if __name__ == '__main__':
