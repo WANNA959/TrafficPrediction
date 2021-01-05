@@ -61,7 +61,7 @@ def main(argv):
     file2 = 'data/100211data/100211_all_test.csv'
 
     #得到不同lag的lstm model
-    for i in range(4,10,2):
+    for i in range(16,18,2):
         lag = i
         X_train, y_train, _, _, _ = process_data(file1, file2, lag)
         X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1))

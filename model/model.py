@@ -25,7 +25,7 @@ def get_lstm(units):
 
 def get_AllDense(units):
     """
-    Build nn Model with dense.
+    Build MLP Model with dense.
 
     # Arguments
         units: List(int), number of input, output and hidden units.
