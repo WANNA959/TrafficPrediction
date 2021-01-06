@@ -112,10 +112,9 @@ def open_file():
     :return:
     '''
     global file_path
-    text1 = tkinter.Text(window, width=50, height=10, bg='orange', font=('Arial', 12))
-    text1.pack()
-    file_path = filedialog.askopenfilename(title=u'选择文件', initialdir=(os.path.expanduser('/Users/bytedance/python/trafficPrediction/data/100211data/')))
+    file_path = filedialog.askopenfilename(title=u'选择文件', initialdir=(os.path.expanduser('/Users/bytedance/python/trafficPrediction/data/100211data/100211_weekend_test.csv')))
     print('打开文件：', file_path)
+
 
 def compareMLPAndLSTM():
     lag = 10
@@ -125,7 +124,7 @@ def compareMLPAndLSTM():
     names = ['AllDense','lstm']
     file1 = 'data/100211data/100211_weekend_train.csv'
     file2 = 'data/100211data/100211_weekend_test.csv'
-    _, _, X_test, y_test, scaler = process_data(file_path, file2, lag)
+    _, _, X_test, y_test, scaler = process_data(file1, file_path, lag)
     y_test = scaler.inverse_transform(y_test.reshape(-1, 1)).reshape(1, -1)[0]
 
     y_preds = []
@@ -175,6 +174,68 @@ def compareMLPAndLSTM():
 
     dataTable.mainloop()
 
+def compareLSTMWithLag():
+    file1 = 'data/100211data/100211_weekend_train.csv'
+    file2 = 'data/100211data/100211_weekend_test.csv'
+
+    y_preds = []
+    columnData=[]
+    names=[]
+    for lag in range(4,16,2):
+        model = load_model("model/lstm-" + str(lag) + ".h5")
+        _, _, X_test, y_test, scaler = process_data(file1, file_path, lag)
+        y_test = scaler.inverse_transform(y_test.reshape(-1, 1)).reshape(1, -1)[0]
+        X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
+        file = 'images/lstm.png'
+        plot_model(model, to_file=file, show_shapes=True)
+        predicted = model.predict(X_test)
+        predicted = scaler.inverse_transform(predicted.reshape(-1, 1)).reshape(1, -1)[0]
+        y_preds.append(predicted[0:288])
+        print("lag=",lag)
+        names.append("lstm lag="+str(lag))
+        evaValue = eva_regress(y_test, predicted)
+        columnData.append(evaValue)
+    plot_results(y_test[0:288], y_preds, names)
+    print(columnData)
+    print(np.array(columnData)[:,0])
+    dataTable = tkinter.Toplevel()
+    dataTable.title("LSTM选取不同lag的训练参数比较")
+    dataTable.geometry("1600x1600")
+
+    # 创建表格
+    tree_date = ttk.Treeview(dataTable)
+
+    # 定义列
+    tree_date['columns'] = ['lag=4','lag=6','lag=8','lag=10','lag=12','lag=14']
+    tree_date.pack()
+
+    # 设置列宽度
+    tree_date.column('lag=4', width=200)
+    tree_date.column('lag=6', width=200)
+    tree_date.column('lag=8', width=200)
+    tree_date.column('lag=10', width=200)
+    tree_date.column('lag=12', width=200)
+    tree_date.column('lag=14', width=200)
+
+    tree_date.heading('lag=4', text='lag=4')
+    tree_date.heading('lag=6', text='lag=6')
+    tree_date.heading('lag=8', text='lag=8')
+    tree_date.heading('lag=10', text='lag=10')
+    tree_date.heading('lag=12', text='lag=12')
+    tree_date.heading('lag=14', text='lag=14')
+
+    # 给表格中添加数据
+    tree_date.insert('', 0, text='EVS', values=tuple(np.array(columnData)[:,0]))
+    tree_date.insert('', 1, text='MAPE', values=tuple(np.array(columnData)[:,1]))
+    tree_date.insert('', 2, text='MAE', values=tuple(np.array(columnData)[:,2]))
+    tree_date.insert('', 3, text='MSE', values=tuple(np.array(columnData)[:,3]))
+
+    img=Image.open('/Users/bytedance/python/trafficPrediction/images/pre_weekend_time.png')
+    img_png = ImageTk.PhotoImage(img)
+    label_img = ttk.Label(dataTable, image=img_png)
+    label_img.pack()
+
+    dataTable.mainloop()
 
 def main():
     # lag = 12
@@ -207,17 +268,18 @@ def main():
     #入口
 
     #选择测试文件
-    bt2 = tkinter.Button(window, text='打开文件', width=30, height=15, command=open_file)
-    bt2.pack()
+    bt3 = tkinter.Button(window, text='打开文件', width=18, height=2,bg='orange', command=open_file)
+    bt3.pack()
     # 对比MLP和LSTM
-    bt1 = tkinter.Button(window, text='对比MLP和LSTM', width=30, height=15, command=compareMLPAndLSTM)
+    bt1 = tkinter.Button(window, text='对比MLP和LSTM', width=18, height=5, command=compareMLPAndLSTM)
     bt1.pack()
 
     # 对比不同的lag
+    bt2 = tkinter.Button(window, text='对比LSTM不同的Lag', width=18, height=5, command=compareLSTMWithLag)
+    bt2.pack()
+
 
     window.mainloop()
-
-
 
 
 if __name__ == '__main__':
