@@ -25,9 +25,13 @@ warnings.filterwarnings("ignore")
 
 window = tkinter.Tk()
 window.title('入口')  # 标题
-window.geometry('400x400')  # 窗口尺寸
+window.geometry('400x600')  # 窗口尺寸
 
 file_path=''
+
+xls_text = tkinter.StringVar()
+xls_text2 = tkinter.StringVar()
+xls_text3 = tkinter.StringVar()
 
 def MAPE(y_true, y_pred):
     """Mean Absolute Percentage Error
@@ -114,6 +118,7 @@ def open_file():
     global file_path
     file_path = filedialog.askopenfilename(title=u'选择文件', initialdir=(os.path.expanduser('/Users/bytedance/python/trafficPrediction/data/100211data/100211_weekend_test.csv')))
     print('打开文件：', file_path)
+    xls_text.set(file_path)
 
 
 def compareMLPAndLSTM():
@@ -178,10 +183,22 @@ def compareLSTMWithLag():
     file1 = 'data/100211data/100211_weekend_train.csv'
     file2 = 'data/100211data/100211_weekend_test.csv'
 
+    dataTable = tkinter.Toplevel()
+    dataTable.title("LSTM选取不同lag的训练参数比较")
+    dataTable.geometry("1600x1600")
+    # 创建表格
+    tree_date = ttk.Treeview(dataTable)
+
     y_preds = []
     columnData=[]
     names=[]
-    for lag in range(4,16,2):
+    begin=xls_text2.get()
+    end=xls_text3.get()
+    begin=int(begin)
+    end=int(end)
+    columns=[]
+    for lag in range(begin,end,2):
+        columns.append('lag=' + str(lag))
         model = load_model("model/lstm-" + str(lag) + ".h5")
         _, _, X_test, y_test, scaler = process_data(file1, file_path, lag)
         y_test = scaler.inverse_transform(y_test.reshape(-1, 1)).reshape(1, -1)[0]
@@ -198,31 +215,30 @@ def compareLSTMWithLag():
     plot_results(y_test[0:288], y_preds, names)
     print(columnData)
     print(np.array(columnData)[:,0])
-    dataTable = tkinter.Toplevel()
-    dataTable.title("LSTM选取不同lag的训练参数比较")
-    dataTable.geometry("1600x1600")
 
-    # 创建表格
-    tree_date = ttk.Treeview(dataTable)
-
+    #根据输入的lag范围动态生成表格
+    tree_date['columns'] = columns
+    for lag in range(begin,end,2):
+        tree_date.column('lag=' + str(lag), width=200)
+        tree_date.heading('lag=' + str(lag), text='lag=' + str(lag))
     # 定义列
-    tree_date['columns'] = ['lag=4','lag=6','lag=8','lag=10','lag=12','lag=14']
+    # tree_date['columns'] = ['lag=4','lag=6','lag=8','lag=10','lag=12','lag=14']
     tree_date.pack()
 
     # 设置列宽度
-    tree_date.column('lag=4', width=200)
-    tree_date.column('lag=6', width=200)
-    tree_date.column('lag=8', width=200)
-    tree_date.column('lag=10', width=200)
-    tree_date.column('lag=12', width=200)
-    tree_date.column('lag=14', width=200)
-
-    tree_date.heading('lag=4', text='lag=4')
-    tree_date.heading('lag=6', text='lag=6')
-    tree_date.heading('lag=8', text='lag=8')
-    tree_date.heading('lag=10', text='lag=10')
-    tree_date.heading('lag=12', text='lag=12')
-    tree_date.heading('lag=14', text='lag=14')
+    # tree_date.column('lag=4', width=200)
+    # tree_date.column('lag=6', width=200)
+    # tree_date.column('lag=8', width=200)
+    # tree_date.column('lag=10', width=200)
+    # tree_date.column('lag=12', width=200)
+    # tree_date.column('lag=14', width=200)
+    #
+    # tree_date.heading('lag=4', text='lag=4')
+    # tree_date.heading('lag=6', text='lag=6')
+    # tree_date.heading('lag=8', text='lag=8')
+    # tree_date.heading('lag=10', text='lag=10')
+    # tree_date.heading('lag=12', text='lag=12')
+    # tree_date.heading('lag=14', text='lag=14')
 
     # 给表格中添加数据
     tree_date.insert('', 0, text='EVS', values=tuple(np.array(columnData)[:,0]))
@@ -266,20 +282,42 @@ def main():
     # plot_results(y_test[0:288], y_preds, names)
 
     #入口
-
+    padx=110#按钮居中
     #选择测试文件
-    bt3 = tkinter.Button(window, text='打开文件', width=18, height=2,bg='orange', command=open_file)
-    bt3.pack()
+    frame1 = tkinter.Frame(window)
+    frame1.grid(row=0, column=0, sticky='w')
+    bt3 = tkinter.Button(frame1, text='打开文件', width=18, height=2,bg='orange', command=open_file)
+    bt3.pack(padx=padx)
+
+    frame2 = tkinter.Frame(window)
+    frame2.grid(row=1, column=0, sticky='w')
+    xls = tkinter.Entry(frame2, textvariable=xls_text,width=100)
+    xls_text.set(" ")
+    xls.pack()
     # 对比MLP和LSTM
-    bt1 = tkinter.Button(window, text='对比MLP和LSTM', width=18, height=5, command=compareMLPAndLSTM)
-    bt1.pack()
+    frame3 = tkinter.Frame(window)
+    frame3.grid(row=2, column=0, sticky='w')
+    bt1 = tkinter.Button(frame3, text='对比MLP和LSTM', width=18, height=5, command=compareMLPAndLSTM)
+    bt1.pack(padx=padx)
 
+    fram4=tkinter.Frame(window)
+    fram4.grid(row=3,column=0,sticky='w')
+    tkinter.Label(fram4,text="lag:").pack(side='left')
+    xls2 = tkinter.Entry(fram4, textvariable=xls_text2, width=20)
+    xls2.pack(side='left',padx=5)
+    tkinter.Label(fram4,text="~").pack(side='left')
+    xls3 = tkinter.Entry(fram4, textvariable=xls_text3, width=20)
+    xls_text2.set(" ")
+    xls_text3.set(" ")
+    xls3.pack(side='left')
     # 对比不同的lag
-    bt2 = tkinter.Button(window, text='对比LSTM不同的Lag', width=18, height=5, command=compareLSTMWithLag)
-    bt2.pack()
-
+    frame5 = tkinter.Frame(window)
+    frame5.grid(row=4, column=0,sticky='w')
+    bt2 = tkinter.Button(frame5, text='对比LSTM不同的Lag', width=18, height=5, command=compareLSTMWithLag)
+    bt2.pack(padx=padx)
 
     window.mainloop()
+
 
 
 if __name__ == '__main__':
