@@ -72,7 +72,7 @@ def train_allDense_model(model, X_train, y_train, name, config,lag,callBack):
 
 def main(argv):
 
-    config = {"batch": 256, "epochs": 20}
+    config = {"batch": 256, "epochs": 600}
     file1 = 'data/100211data/100211_all_train.csv'
     file2 = 'data/100211data/100211_all_test.csv'
 
@@ -98,10 +98,7 @@ lagIntEnd = 0
 def start_train():
     config = {"batch": 256, "epochs": 10}
     file_path1=fileStr1.get()
-    file_path2=fileStr2.get()
-    print(lagIntStart.get())
-    print(lagIntEnd.get())
-    print(modelName.get())
+    file_path2='data/100211data/100211_all_test.csv'
     if file_path1=="" or file_path2=="":
         tkinter.messagebox.askokcancel(title='请选择文件~', message='请选择两个文件')
         return
@@ -122,15 +119,16 @@ def start_train():
             #_thread.start_new_thread(train_model,(m, X_train, y_train, "lstm", config,lag,callBack))
             # train_model(m, X_train, y_train, "lstm", config,lag,callBack)
     if needAllDense:
-        X_train, y_train, _, _, _ = process_data(file_path1, file_path2, lagIntStart.get())
-        m = model.get_AllDense([lagIntStart.get(), 64, 64, 1])
-        train_allDense_model(m, X_train, y_train, "AllDense", config, lagIntStart.get(),callBack)
-        #_thread.start_new_thread(train_allDense_model,(m, X_train, y_train, "AllDense", config, lagIntStart.get(),callBack))
-        # train_allDense_model(m, X_train, y_train, "AllDense", config, lag,callBack)
+        for i in range(lagIntStart.get(), lagIntEnd.get(), 2):
+            lag=i
+            X_train, y_train, _, _, _ = process_data(file_path1, file_path2, lag)
+            m = model.get_AllDense([lag, 64, 64, 1])
+            train_allDense_model(m, X_train, y_train, "AllDense", config, lag,callBack)
+            #_thread.start_new_thread(train_allDense_model,(m, X_train, y_train, "AllDense", config, lagIntStart.get(),callBack))
+            # train_allDense_model(m, X_train, y_train, "AllDense", config, lag,callBack)
     tkinter.messagebox.askokcancel(title='ok~', message='训练完成，结果保存在model文件夹下')
     return
 
-# file_path2 = tkinter.StringVar()
 
 def open_file_train():
     '''
@@ -141,20 +139,10 @@ def open_file_train():
     fileStr1.set(file_path1)
     print('打开文件：', file_path1)
 
-def open_file_test():
-    '''
-    打开文件
-    :return:
-    '''
-    file_path2 = filedialog.askopenfilename(title=u'选择测试集', initialdir=(os.path.expanduser('./data/100211data/100211_weekend_test.csv')))
-    fileStr2.set(file_path2)
-    print('打开文件：', file_path2)
-
-
 
 window = tkinter.Tk()
 window.title('入口')  # 标题
-window.geometry('800x600')  # 窗口尺寸
+window.geometry('600x400')  # 窗口尺寸
 def runUI():
     global lagIntStart
     lagIntStart = tkinter.IntVar()
@@ -165,13 +153,13 @@ def runUI():
     global modelName
     modelName = tkinter.StringVar()
     frmL1 =tkinter.Frame( width=200, height=100,bg='blue')
-    frmL2 =tkinter.Frame(width=200,height=100, bg='white')
+    # frmL2 =tkinter.Frame(width=200,height=100, bg='white')
     frmM1 =tkinter.Frame(width=200, height=10, bg='white')
-    frmM2 = tkinter.Frame(width=2000, height=10,bg='yellow')
+    # frmM2 = tkinter.Frame(width=2000, height=10,bg='yellow')
     frmL1.grid(row=0, column=0,padx=1,pady=1)
-    frmL2.grid(row=1, column=0)
+    # frmL2.grid(row=1, column=0)
     frmM1.grid(row=0,column=1)
-    frmM2.grid(row=1,column=1)
+    # frmM2.grid(row=1,column=1)
 
     #lag按钮
     frm22 =tkinter.Frame()
@@ -184,7 +172,7 @@ def runUI():
     frm32.grid(row=3,column=1)
     tkinter.Label(frm21,text='输入lag start').pack()
     tkinter.Entry(frm22, textvariable=lagIntStart,width=40).pack()
-    tkinter.Label(frm31,text='输入lag start').pack()
+    tkinter.Label(frm31,text='输入lag end').pack()
     tkinter.Entry(frm32, textvariable=lagIntEnd,width=40).pack()
 
     #选择模型下拉框
@@ -209,9 +197,9 @@ def runUI():
     global fileStr2
     fileStr2=tkinter.StringVar()
     tkinter.Entry(frmM1, textvariable=fileStr1,width=40).pack()
-    tkinter.Entry(frmM2, textvariable=fileStr2,width=40).pack()
+    # tkinter.Entry(frmM2, textvariable=fileStr2,width=40).pack()
     tkinter.Button(frmL1, text='打开训练集', width=18,bg='orange', command=open_file_train).pack()
-    tkinter.Button(frmL2, text='打开测试集', width=18,bg='orange', command=open_file_test).pack()
+    # tkinter.Button(frmL2, text='打开测试集', width=18,bg='orange', command=open_file_test).pack()
     tkinter.Button(frm51, text='开始训练', width=20, height=2,bg='orange', command=start_train).pack()
     # tkinter.Button(frm31,text='开始训练',width=30,height =2,bg='orange',command = open_file_test).pack()
     window.mainloop()

@@ -22,8 +22,8 @@ def process_data(train, test, lags):
         scaler: StandardScaler.
     """
     attr = 'volumn'
-    df1 = pd.read_csv(train, encoding='utf-8').fillna(0)
-    df2 = pd.read_csv(test, encoding='utf-8').fillna(0)
+    df1 = pd.read_csv(train, encoding='utf-8')
+    df2 = pd.read_csv(test, encoding='utf-8')
 
     # scaler = StandardScaler().fit(df1[attr].values)
     scaler = MinMaxScaler(feature_range=(0, 1)).fit(df1[attr].values.reshape(-1, 1))

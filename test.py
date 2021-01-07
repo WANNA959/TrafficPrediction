@@ -21,6 +21,8 @@ import os
 
 from PIL import Image, ImageTk
 
+import tkinter.messagebox
+
 warnings.filterwarnings("ignore")
 
 window = tkinter.Tk()
@@ -129,6 +131,11 @@ def compareMLPAndLSTM():
     names = ['AllDense','lstm']
     file1 = 'data/100211data/100211_weekend_train.csv'
     file2 = 'data/100211data/100211_weekend_test.csv'
+
+    if file_path=="":
+        tkinter.messagebox.askokcancel(title='请选择文件~', message='请先选择测试集文件')
+        return
+
     _, _, X_test, y_test, scaler = process_data(file1, file_path, lag)
     y_test = scaler.inverse_transform(y_test.reshape(-1, 1)).reshape(1, -1)[0]
 
@@ -183,17 +190,27 @@ def compareLSTMWithLag():
     file1 = 'data/100211data/100211_weekend_train.csv'
     file2 = 'data/100211data/100211_weekend_test.csv'
 
+    begin = xls_text2.get()
+    end = xls_text3.get()
+    if begin == "" or end == "":
+        tkinter.messagebox.askokcancel(title='请输入lag范围~', message='请先输入lag范围')
+        return
+
+    if file_path == "":
+        tkinter.messagebox.askokcancel(title='请选择文件~', message='请先选择测试集文件')
+        return
+
     dataTable = tkinter.Toplevel()
     dataTable.title("LSTM选取不同lag的训练参数比较")
     dataTable.geometry("1600x1600")
+
     # 创建表格
     tree_date = ttk.Treeview(dataTable)
 
     y_preds = []
     columnData=[]
     names=[]
-    begin=xls_text2.get()
-    end=xls_text3.get()
+
     begin=int(begin)
     end=int(end)
     columns=[]
@@ -307,8 +324,8 @@ def main():
     xls2.pack(side='left',padx=5)
     tkinter.Label(fram4,text="~").pack(side='left')
     xls3 = tkinter.Entry(fram4, textvariable=xls_text3, width=7)
-    xls_text2.set(" ")
-    xls_text3.set(" ")
+    xls_text2.set("")
+    xls_text3.set("")
     xls3.pack(side='left')
     # 对比不同的lag
     frame5 = tkinter.Frame(window)
