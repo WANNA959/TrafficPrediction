@@ -118,7 +118,7 @@ def open_file():
     :return:
     '''
     global file_path
-    file_path = filedialog.askopenfilename(title=u'选择文件', initialdir=(os.path.expanduser('/Users/bytedance/python/trafficPrediction/data/100211data/100211_weekend_test.csv')))
+    file_path = filedialog.askopenfilename(title=u'选择文件', initialdir=(os.path.expanduser('./data/100211data/100211_weekend_test.csv')))
     print('打开文件：', file_path)
     xls_text.set(file_path)
 
@@ -179,7 +179,7 @@ def compareMLPAndLSTM():
     tree_date.insert('', 2, text='MAE', values=tuple(np.array(columnData)[:,2]))
     tree_date.insert('', 3, text='MSE', values=tuple(np.array(columnData)[:,3]))
 
-    img=Image.open('/Users/bytedance/python/trafficPrediction/images/pre_weekend_time.png')
+    img=Image.open('./images/pre_weekend_time.png')
     img_png = ImageTk.PhotoImage(img)
     label_img = ttk.Label(dataTable, image=img_png)
     label_img.pack()
@@ -242,28 +242,13 @@ def compareLSTMWithLag():
     # tree_date['columns'] = ['lag=4','lag=6','lag=8','lag=10','lag=12','lag=14']
     tree_date.pack()
 
-    # 设置列宽度
-    # tree_date.column('lag=4', width=200)
-    # tree_date.column('lag=6', width=200)
-    # tree_date.column('lag=8', width=200)
-    # tree_date.column('lag=10', width=200)
-    # tree_date.column('lag=12', width=200)
-    # tree_date.column('lag=14', width=200)
-    #
-    # tree_date.heading('lag=4', text='lag=4')
-    # tree_date.heading('lag=6', text='lag=6')
-    # tree_date.heading('lag=8', text='lag=8')
-    # tree_date.heading('lag=10', text='lag=10')
-    # tree_date.heading('lag=12', text='lag=12')
-    # tree_date.heading('lag=14', text='lag=14')
-
     # 给表格中添加数据
     tree_date.insert('', 0, text='EVS', values=tuple(np.array(columnData)[:,0]))
     tree_date.insert('', 1, text='MAPE', values=tuple(np.array(columnData)[:,1]))
     tree_date.insert('', 2, text='MAE', values=tuple(np.array(columnData)[:,2]))
     tree_date.insert('', 3, text='MSE', values=tuple(np.array(columnData)[:,3]))
 
-    img=Image.open('/Users/bytedance/python/trafficPrediction/images/pre_weekend_time.png')
+    img=Image.open('./images/pre_weekend_time.png')
     img_png = ImageTk.PhotoImage(img)
     label_img = ttk.Label(dataTable, image=img_png)
     label_img.pack()
@@ -324,8 +309,8 @@ def main():
     xls2.pack(side='left',padx=5)
     tkinter.Label(fram4,text="~").pack(side='left')
     xls3 = tkinter.Entry(fram4, textvariable=xls_text3, width=7)
-    xls_text2.set("")
-    xls_text3.set("")
+    xls_text2.set("4")
+    xls_text3.set("10")
     xls3.pack(side='left')
     # 对比不同的lag
     frame5 = tkinter.Frame(window)
@@ -334,8 +319,6 @@ def main():
     bt2.pack(padx=padx)
 
     window.mainloop()
-
-
 
 if __name__ == '__main__':
     main()
